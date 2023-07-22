@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import {NavLink} from "react-router-dom";
 import { Button, Form } from "react-bootstrap";
 
 const SignUpForm = () => {
@@ -98,9 +99,9 @@ const SignUpForm = () => {
         </Form>
       </div>
       <div className="d-flex justify-content-center mt-2 ">
-        <Button type="submit" className="btn btn-secondary">
+        <NavLink to = "signin" className="btn btn-secondary">
           Have an account? Login
-        </Button>
+        </NavLink>
       </div>
     </>
   );

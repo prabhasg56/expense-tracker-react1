@@ -1,9 +1,12 @@
 import { useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Button, Form } from "react-bootstrap";
 
 const SignInForm = () => {
   const emailRef = useRef(""),
     passwordRef = useRef("");
+
+  const navigate = useNavigate();// for navigate one page to another page
 
   const basUrl =
     "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDTB9cmJf7cTzfA2fAENNOyqnaSNpLFnac";
@@ -32,6 +35,8 @@ const SignInForm = () => {
 
         if (response.status === 200) {
           alert("Login successfull!");
+          localStorage.setItem('token', jsonResponse.idToken);
+          navigate('/welcome')
           emailRef.current.value = "";
           passwordRef.current.value = "";
         } else {
@@ -81,9 +86,9 @@ const SignInForm = () => {
         </Form>
       </div>
       <div className="d-flex justify-content-center mt-2 ">
-        <Button type="submit" className="btn btn-secondary">
+        <NavLink to="/" className="btn btn-secondary">
           Don't Have an account? Sign Up
-        </Button>
+        </NavLink>
       </div>
     </>
   );
