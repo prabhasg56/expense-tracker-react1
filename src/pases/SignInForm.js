@@ -36,6 +36,8 @@ const SignInForm = () => {
         if (response.status === 200) {
           alert("Login successfull!");
           localStorage.setItem('token', jsonResponse.idToken);
+          console.log(jsonResponse.idToken)
+
           navigate('/welcome')
           emailRef.current.value = "";
           passwordRef.current.value = "";
@@ -43,7 +45,7 @@ const SignInForm = () => {
           throw new Error(jsonResponse.error.message);
         }
       } catch (error) {
-        console.log(error.message);
+        alert(error.message);
       }
     } else {
       alert("Invalid email or password!");

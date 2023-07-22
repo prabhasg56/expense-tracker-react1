@@ -41,14 +41,15 @@ const SignUpForm = () => {
 
         if (response.status === 200) {
           alert("Your are successfully register!");
+          localStorage.setItem('siginUpIdToken',jsonResponse.idToken)
           emailRef.current.value = "";
           passwordRef.current.value = "";
           confirmPasswordRef.current.value = "";
         } else {
-          throw new Error(JSON.stringify(jsonResponse));
+          throw new Error(jsonResponse.error.message);
         }
       } catch (error) {
-        console.log(error.message);
+        alert(error);
       }
     } else {
       alert("Please enter same password!");
