@@ -1,12 +1,18 @@
 import React from "react";
 import { Navbar, Container, Button } from "react-bootstrap";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const WelcomePage = () => {
   const baseUrl =
     "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyDTB9cmJf7cTzfA2fAENNOyqnaSNpLFnac";
 
   const idToken = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  const logoutHandler = () => {
+    localStorage.clear('token');
+    navigate('/signin')
+  }
 
   const verifyEmailHandler = async () => {
     try {
@@ -42,10 +48,12 @@ const WelcomePage = () => {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
-              Your profile is Incomplete:{" "}
-              <NavLink to="/profile">complete</NavLink>
+              Your profile is Incomplete:
+              <NavLink to="/profile" >complete</NavLink>
             </Navbar.Text>
           </Navbar.Collapse>
+          <Button className="ms-2 btn-danger" onClick={() => logoutHandler()}>Logout</Button>
+
         </Container>
       </Navbar>
       <div>
