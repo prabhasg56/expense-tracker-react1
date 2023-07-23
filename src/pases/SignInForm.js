@@ -52,6 +52,10 @@ const SignInForm = () => {
     }
   };
 
+  const forgotPasswordHandler = () => {
+    
+  }
+
   return (
     <>
       <div className="d-flex justify-content-center mt-5">
@@ -77,6 +81,7 @@ const SignInForm = () => {
           </div>
 
           <div className="d-grid">
+            
             <Button
               type="submit"
               className="btn btn-primary rounded-pill"
@@ -84,6 +89,7 @@ const SignInForm = () => {
             >
               Sign In
             </Button>
+            <p className="ms-5 user-select-none mt-2" onClick={() => forgotPasswordHandler()}>Forgot Password?</p>
           </div>
         </Form>
       </div>
