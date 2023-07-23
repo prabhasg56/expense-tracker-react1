@@ -10,45 +10,52 @@ const ProfilePage = () => {
   const baseUrl =
     "https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDTB9cmJf7cTzfA2fAENNOyqnaSNpLFnac";
 
-  const enteredProfileName = profileNameRef.current.value;
-  const enteredProfileUrl = profileUrlRef.current.value;
-  const idToken = localStorage.getItem("siginUpIdToken");
+  const idToken = localStorage.getItem('token');
 
   const fetchProfileData = async () => {
-    const baseUrl = "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDTB9cmJf7cTzfA2fAENNOyqnaSNpLFnac";
-   
-    try{
-        const response = await fetch(`${baseUrl}`, {
-            method: 'post',
-            body: {
-                idToken: idToken
-            },
-            headers: {
-                "Content-Type": "application/json",
-              },
-        })
-
-        const responseJson = await response.json();
-        console.log(responseJson)
-    }catch(error){
-        alert(error);
-    }
-  }
-
-  useEffect(()=>{
-    fetchProfileData()
-  },[]);
-
-  const updateProfileHandler = async (e) => {
-    e.preventDefault();
+    const baseUrl =
+      "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyDTB9cmJf7cTzfA2fAENNOyqnaSNpLFnac";
 
     try {
       const response = await fetch(`${baseUrl}`, {
         method: "post",
         body: JSON.stringify({
           idToken: idToken,
-          profileName: enteredProfileName,
-          profileUrl: enteredProfileUrl,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const responseJson = await response.json();
+  
+      if(response.status === 200){
+        console.log(responseJson);
+      }else{
+        throw new Error(responseJson.error.message)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  const updateProfileHandler = async (e) => {
+    e.preventDefault();
+    const enteredProfileName = profileNameRef.current.value;
+    const enteredProfileUrl = profileUrlRef.current.value;
+
+    try {
+      const response = await fetch(`${baseUrl}`, {
+        method: "post",
+        body: JSON.stringify({
+          idToken: idToken,
+          displayName: enteredProfileName,
+          photoUrl: enteredProfileUrl,
+          // deleteAttribute: "DISPLAY_NAME",
           returnSecureToken: true,
         }),
 
@@ -65,8 +72,11 @@ const ProfilePage = () => {
         throw new Error(jsonResponse.error.message);
       }
     } catch (error) {
-      alert(error)
+      alert(error);
     }
+
+    fetchProfileData();
+
   };
 
   return (
@@ -82,7 +92,7 @@ const ProfilePage = () => {
               className="fs-15 fw-bold p-2"
               style={{
                 width: "40%",
-                fontSize: "12px",
+                fontSize: ".7vw",
                 backgroundColor: "#ffcccc",
                 borderRadius: "5px",
               }}
