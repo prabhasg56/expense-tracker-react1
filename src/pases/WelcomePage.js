@@ -169,11 +169,18 @@ const WelcomePage = () => {
                   <td>
                     <button
                       type="button"
-                      className="btn btn-danger text-white fw-bold"
+                      className="btn btn-primary text-white fw-bold"
+                    >
+                      EDIT
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger text-white fw-bold ms-3"
                     >
                       DELETE
                     </button>
                   </td>
+                  
                 </tr>
               );
             })}
