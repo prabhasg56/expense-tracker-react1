@@ -1,18 +1,24 @@
-import React from "react";
-import { Navbar, Container, Button } from "react-bootstrap";
+import React, { useRef, useState } from "react";
+import { Navbar, Container, Button, Form, Row, Col } from "react-bootstrap";
 import { NavLink, useNavigate } from "react-router-dom";
 
 const WelcomePage = () => {
+  const [expenses, setExpenses] = useState([]);
+  const navigate = useNavigate();
+
+  const spentAmountRef = useRef("");
+  const expenseDescRef = useRef("");
+  const expenseCatRef = useRef("");
+
   const baseUrl =
     "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyDTB9cmJf7cTzfA2fAENNOyqnaSNpLFnac";
 
   const idToken = localStorage.getItem("token");
-  const navigate = useNavigate();
 
   const logoutHandler = () => {
-    localStorage.clear('token');
-    navigate('/signin')
-  }
+    localStorage.clear("token");
+    navigate("/signin");
+  };
 
   const verifyEmailHandler = async () => {
     try {
@@ -40,8 +46,21 @@ const WelcomePage = () => {
     }
   };
 
+  const expenseFormHandler = (e) => {
+    e.preventDefault();
+    const enteredExpenseAmt = spentAmountRef.current.value;
+    const enteredExpenseCat = expenseCatRef.current.value;
+    const enteredExpenseDesc = expenseDescRef.current.value;
+
+    setExpenses([...expenses,{
+      expenseAmount: enteredExpenseAmt,
+      expenseDescription: enteredExpenseDesc,
+      expenseCategory: enteredExpenseCat,
+    }]);
+  };
+
   return (
-    <div>
+    <>
       <Navbar className="bg-body-tertiary border-bottom border-dark">
         <Container>
           <Navbar.Brand href="#home">Welcome to expense tracker!!</Navbar.Brand>
@@ -49,19 +68,73 @@ const WelcomePage = () => {
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
               Your profile is Incomplete:
-              <NavLink to="/profile" >complete</NavLink>
+              <NavLink to="/profile">complete</NavLink>
             </Navbar.Text>
           </Navbar.Collapse>
-          <Button className="ms-2 btn-danger" onClick={() => logoutHandler()}>Logout</Button>
-
+          <Button className="ms-2 btn-danger" onClick={() => logoutHandler()}>
+            Logout
+          </Button>
+          <Button onClick={() => verifyEmailHandler()} className="ms-3">
+            Verify Email id
+          </Button>
         </Container>
       </Navbar>
-      <div>
-        <Container className="mt-3">
-          <Button onClick={() => verifyEmailHandler()}>Verify Email id</Button>
-        </Container>
+
+      <Form className="bg-secondary mt-3 p-3 m-4 rounded">
+        <Row className="mb-3">
+          <Form.Group as={Col} controlId="formGridEmail">
+            <Form.Label>Spent amount</Form.Label>
+            <Form.Control type="text" placeholder="Enter spent amount" ref={spentAmountRef}/>
+          </Form.Group>
+
+          <Form.Group as={Col} controlId="formGridPassword">
+            <Form.Label>Expense description</Form.Label>
+            <Form.Control type="text" placeholder="Enter expense description" ref={expenseDescRef}/>
+          </Form.Group>
+        </Row>
+
+        <Form.Group className="mb-3" controlId="formGridAddress1">
+          <Form.Label>Category of the expense</Form.Label>
+          <Form.Control placeholder="Enter expense category" ref={expenseCatRef}/>
+        </Form.Group>
+
+        <Button
+          variant="primary"
+          type="submit"
+          onClick={(e) => expenseFormHandler(e)}
+        >
+          Add expense
+        </Button>
+      </Form>
+
+      <div class="container mt-3">
+        <h2 className="text-center">List of expenses</h2>
+        <table class="table">
+          <tbody>
+            {expenses.map((expense, index) => {
+              console.log(expense)
+              return (
+                <tr key={index}>
+                  <td class="text-dark">{expense.expenseAmount}</td>
+                  <td className="text-secondary">
+                    {expense.expenseDescription}
+                  </td>
+                  <td className="text-secondary">{expense.expenseCategory}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-danger text-white fw-bold"
+                    >
+                      DELETE
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-    </div>
+    </>
   );
 };
 

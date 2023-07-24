@@ -42,6 +42,7 @@ const SignUpForm = () => {
         if (response.status === 200) {
           alert("Your are successfully register!");
           localStorage.setItem('siginUpIdToken',jsonResponse.idToken)
+          localStorage.setItem('signupEmail', enteredEmail)
           emailRef.current.value = "";
           passwordRef.current.value = "";
           confirmPasswordRef.current.value = "";

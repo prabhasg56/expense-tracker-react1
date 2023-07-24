@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button, Form } from "react-bootstrap";
 
-const SignInForm = () => {
+const SignInForm = (props) => {
   const emailRef = useRef(""),
     passwordRef = useRef("");
 
@@ -52,8 +52,8 @@ const SignInForm = () => {
     }
   };
 
-  const forgotPasswordHandler = () => {
-    
+  const forgotModalHandler = () => {
+    props.showModalHandler(true);
   }
 
   return (
@@ -89,7 +89,7 @@ const SignInForm = () => {
             >
               Sign In
             </Button>
-            <p className="ms-5 user-select-none mt-2" onClick={() => forgotPasswordHandler()}>Forgot Password?</p>
+            <p className="ms-5 user-select-none mt-2" onClick={() => forgotModalHandler()}>Forgot Password?</p>
           </div>
         </Form>
       </div>
