@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Navbar, Container, Button, Form, Row, Col } from "react-bootstrap";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -12,6 +12,8 @@ const WelcomePage = () => {
 
   const baseUrl =
     "https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyDTB9cmJf7cTzfA2fAENNOyqnaSNpLFnac";
+
+  const expenseBaseUrl = "https://expense-tracker-dc8d1-default-rtdb.firebaseio.com/";
 
   const idToken = localStorage.getItem("token");
 
@@ -57,7 +59,51 @@ const WelcomePage = () => {
       expenseDescription: enteredExpenseDesc,
       expenseCategory: enteredExpenseCat,
     }]);
+
+    saveToFireBase();
   };
+
+  const saveToFireBase = async () => {
+
+    try {
+      const response = await fetch(`${expenseBaseUrl}expense.json`, {
+          method: 'post',
+          body: JSON.stringify(expenses),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+      })
+
+      const responseJson = await response.json();
+
+      if(response.status === 200){
+        alert('Expense added successfully!');
+      } else {
+        throw new Error(responseJson.error.message);
+      }
+
+    }catch(error) {
+      alert(error);
+    }
+  }
+
+  const fetchExpense = async() => {
+
+    try{
+      const response = await fetch(`${expenseBaseUrl}expense.json`);
+
+      const responseJson = await response.json();
+
+      console.log(JSON.stringify(responseJson));
+      // setExpenses(responseJson);
+    }catch(error) {
+      alert(error);
+    }
+  }
+
+  useEffect(()=>{
+    fetchExpense();
+  },[])
 
   return (
     <>
@@ -112,7 +158,7 @@ const WelcomePage = () => {
         <table class="table">
           <tbody>
             {expenses.map((expense, index) => {
-              console.log(expense)
+              
               return (
                 <tr key={index}>
                   <td class="text-dark">{expense.expenseAmount}</td>
