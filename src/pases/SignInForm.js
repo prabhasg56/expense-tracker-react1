@@ -1,12 +1,15 @@
 import { useRef } from "react";
+import {useDispatch} from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button, Form } from "react-bootstrap";
+import { authAction } from "../store/authSlice";
 
 const SignInForm = (props) => {
   const emailRef = useRef(""),
     passwordRef = useRef("");
 
   const navigate = useNavigate();// for navigate one page to another page
+  const dispatch = useDispatch();
 
   const basUrl =
     "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDTB9cmJf7cTzfA2fAENNOyqnaSNpLFnac";
@@ -36,9 +39,9 @@ const SignInForm = (props) => {
         if (response.status === 200) {
           alert("Login successfull!");
           localStorage.setItem('token', jsonResponse.idToken);
-          console.log(jsonResponse.idToken)
 
-          navigate('/welcome')
+          dispatch(authAction.login({idToken: jsonResponse.idToken, userId: enteredEmail}));
+          navigate('/welcome');
           emailRef.current.value = "";
           passwordRef.current.value = "";
         } else {
@@ -48,7 +51,7 @@ const SignInForm = (props) => {
         alert(error.message);
       }
     } else {
-      alert("Invalid email or password!");
+      alert("Please valid email or password!");
     }
   };
 

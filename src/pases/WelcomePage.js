@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Navbar, Container, Button, Form, Row, Col } from "react-bootstrap";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+import { authAction } from "../store/authSlice";
+import { expenseAction } from "../store/expenseSlice";
 
 const WelcomePage = () => {
-  const [expenses, setExpenses] = useState([]);
   const [showUpdateBtn, setShowUpdateBtn] = useState(false);
-  const [expenseUpdateId, setExpenseUpdateId] = useState('');
+  const [expenseUpdateId, setExpenseUpdateId] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const spentAmountRef = useRef("");
   const expenseDescRef = useRef("");
@@ -20,8 +24,10 @@ const WelcomePage = () => {
 
   const idToken = localStorage.getItem("token");
 
+  const expenses = useSelector((state) => state.expenses.expenses);
+
   const logoutHandler = () => {
-    localStorage.clear("token");
+    dispatch(authAction.logout());
     navigate("/signin");
   };
 
@@ -102,7 +108,7 @@ const WelcomePage = () => {
         });
       }
 
-      setExpenses([...totalExpenses]);
+      dispatch(expenseAction.expenses({ expense: totalExpenses }));
     } catch (error) {
       alert(error);
     }
@@ -119,7 +125,6 @@ const WelcomePage = () => {
 
     setShowUpdateBtn(true);
     setExpenseUpdateId(expense.id);
-
   };
 
   const updateExpenseHandler = async (e) => {
@@ -131,7 +136,9 @@ const WelcomePage = () => {
     setShowUpdateBtn(false);
 
     try {
-        const response = await fetch(`${expenseBaseUrl}expense/${expenseUpdateId}.json`, {
+      const response = await fetch(
+        `${expenseBaseUrl}expense/${expenseUpdateId}.json`,
+        {
           method: "put",
           body: JSON.stringify({
             expenseAmount: enteredExpenseAmt,
@@ -141,20 +148,21 @@ const WelcomePage = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        });
-  
-        const responseJson = await response.json();
-  
-        if (response.status === 200) {
-          alert("Expense updated successfully!");
-          fetchExpense();
-          spentAmountRef.current.value = "";
-          expenseCatRef.current.value = "";
-          expenseDescRef.current.value = "";
-        } else {
-          throw new Error(responseJson.error.message);
         }
-    }catch(error) {
+      );
+
+      const responseJson = await response.json();
+
+      if (response.status === 200) {
+        alert("Expense updated successfully!");
+        fetchExpense();
+        spentAmountRef.current.value = "";
+        expenseCatRef.current.value = "";
+        expenseDescRef.current.value = "";
+      } else {
+        throw new Error(responseJson.error.message);
+      }
+    } catch (error) {
       alert(error);
     }
   };
@@ -188,6 +196,8 @@ const WelcomePage = () => {
     expenseDescRef.current.value = "";
     setShowUpdateBtn(false);
   };
+
+  const activatePremiumHandler = (expense) => {};
 
   return (
     <>
@@ -298,6 +308,15 @@ const WelcomePage = () => {
                     >
                       DELETE
                     </button>
+                    {/* {expense.expenseAmount >= 10000 && (
+                      <button
+                        type="button"
+                        className="btn btn-success text-white fw-bold ms-3"
+                        onClick={() => activatePremiumHandler(expense)}
+                      >
+                        Activate Premium
+                      </button>
+                    )} */}
                   </td>
                 </tr>
               );
