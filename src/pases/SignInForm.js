@@ -39,6 +39,7 @@ const SignInForm = (props) => {
         if (response.status === 200) {
           alert("Login successfull!");
           localStorage.setItem('token', jsonResponse.idToken);
+          localStorage.setItem('loginEmail', jsonResponse.email);
 
           dispatch(authAction.login({idToken: jsonResponse.idToken, userId: enteredEmail}));
           navigate('/welcome');

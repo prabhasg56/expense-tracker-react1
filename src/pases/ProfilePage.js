@@ -1,11 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import { Navbar, Container, Col, Row, Form, Button } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { updateProfileAction } from "../store/updateProfileSlice";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const profileNameRef = useRef("");
   const profileUrlRef = useRef("");
+  const dispatch = useDispatch();
 
   const baseUrl =
     "https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDTB9cmJf7cTzfA2fAENNOyqnaSNpLFnac";
@@ -30,7 +33,8 @@ const ProfilePage = () => {
       const responseJson = await response.json();
   
       if(response.status === 200){
-        console.log(responseJson);
+        localStorage.setItem('profileUpdated', 200);
+        dispatch(updateProfileAction.profileUpdateStatus());
       }else{
         throw new Error(responseJson.error.message)
       }

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Navbar, Container, Button, Form, Row, Col } from "react-bootstrap";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import fileDownload from "js-file-download";
 
 import { authAction } from "../store/authSlice";
 import { expenseAction } from "../store/expenseSlice";
@@ -9,8 +10,19 @@ import { expenseAction } from "../store/expenseSlice";
 const WelcomePage = () => {
   const [showUpdateBtn, setShowUpdateBtn] = useState(false);
   const [expenseUpdateId, setExpenseUpdateId] = useState("");
+  const [theme, setTheme] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const idToken = localStorage.getItem("token");
+
+  const expenses = useSelector((state) => state.expenses.expenses);
+  const totalExpense = useSelector(
+    (state) => state.expenses.totalExpensesAmount
+  );
+  const userEmail = useSelector((state) => state.auth.userId);
+
+  const userId = userEmail.replace(/[@.]/g, "");
 
   const spentAmountRef = useRef("");
   const expenseDescRef = useRef("");
@@ -22,9 +34,8 @@ const WelcomePage = () => {
   const expenseBaseUrl =
     "https://expense-tracker-dc8d1-default-rtdb.firebaseio.com/";
 
-  const idToken = localStorage.getItem("token");
-
-  const expenses = useSelector((state) => state.expenses.expenses);
+  const isPremium = useSelector((state) => state.expenses.isPremium);
+  let bgDark = theme && "bg-dark text-white vh-100";
 
   const logoutHandler = () => {
     dispatch(authAction.logout());
@@ -64,7 +75,7 @@ const WelcomePage = () => {
     const enteredExpenseDesc = expenseDescRef.current.value;
 
     try {
-      const response = await fetch(`${expenseBaseUrl}expense.json`, {
+      const response = await fetch(`${expenseBaseUrl}${userId}/expense.json`, {
         method: "post",
         body: JSON.stringify({
           expenseAmount: enteredExpenseAmt,
@@ -94,10 +105,11 @@ const WelcomePage = () => {
 
   const fetchExpense = async () => {
     try {
-      const response = await fetch(`${expenseBaseUrl}expense.json`);
+      const response = await fetch(`${expenseBaseUrl}${userId}/expense.json`);
 
       const jsonResponse = await response.json();
       const totalExpenses = [];
+      let totalExpensesAmount = 0;
 
       for (let key in jsonResponse) {
         totalExpenses.push({
@@ -106,9 +118,16 @@ const WelcomePage = () => {
           expenseDescription: jsonResponse[key].expenseDescription,
           expenseCategory: jsonResponse[key].expenseCategory,
         });
+
+        totalExpensesAmount += Number(jsonResponse[key].expenseAmount);
       }
 
-      dispatch(expenseAction.expenses({ expense: totalExpenses }));
+      dispatch(
+        expenseAction.expenses({
+          expense: totalExpenses,
+          totalExpensesAmount: totalExpensesAmount,
+        })
+      );
     } catch (error) {
       alert(error);
     }
@@ -137,7 +156,7 @@ const WelcomePage = () => {
 
     try {
       const response = await fetch(
-        `${expenseBaseUrl}expense/${expenseUpdateId}.json`,
+        `${expenseBaseUrl}${userId}/expense/${expenseUpdateId}.json`,
         {
           method: "put",
           body: JSON.stringify({
@@ -169,12 +188,15 @@ const WelcomePage = () => {
 
   const deleteExpenseHandler = async (id) => {
     try {
-      const response = await fetch(`${expenseBaseUrl}expense/${id}.json`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${expenseBaseUrl}${userId}/expense/${id}.json`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       console.log(response);
 
@@ -197,11 +219,26 @@ const WelcomePage = () => {
     setShowUpdateBtn(false);
   };
 
-  const activatePremiumHandler = (expense) => {};
+  const activatePremiumHandler = () => {
+    dispatch(expenseAction.activatePremium({ dark: true }));
+    setTheme(true);
+  };
+
+  const expenseReporHandler = () => {
+    const makeCSV = expenses
+      .map((ex) => Object.entries(ex).join(","))
+      .join("\n");
+
+    fileDownload(makeCSV, "expense.csv");
+  };
+
+  const bgThemeHandler = () => {
+    theme ? setTheme(false) : setTheme(true);
+  };
 
   return (
-    <>
-      <Navbar className="bg-body-tertiary border-bottom border-dark">
+    <div className={bgDark}>
+      <Navbar className="navbar bg-secondary border-bottom border-dark">
         <Container>
           <Navbar.Brand href="#home">Welcome to expense tracker!!</Navbar.Brand>
           <Navbar.Toggle />
@@ -218,9 +255,17 @@ const WelcomePage = () => {
             Verify Email id
           </Button>
         </Container>
+        {isPremium && (
+          <button
+            onClick={() => bgThemeHandler()}
+            className="btn btn-dark rounded-pill"
+          >
+            {!theme ? "dark" : "light"}
+          </button>
+        )}
       </Navbar>
 
-      <Form className="bg-secondary mt-3 p-3 m-4 rounded">
+      <Form className="bg-secondary  bg-gradient mt-3 p-3 m-4 rounded">
         <Row className="mb-3">
           <Form.Group as={Col} controlId="formGridEmail">
             <Form.Label>Spent amount</Form.Label>
@@ -281,7 +326,7 @@ const WelcomePage = () => {
         )}
       </Form>
 
-      <div class="container mt-3">
+      <div class="container mt-3 ">
         <h2 className="text-center">List of expenses</h2>
         <table class="table">
           <tbody>
@@ -308,23 +353,41 @@ const WelcomePage = () => {
                     >
                       DELETE
                     </button>
-                    {/* {expense.expenseAmount >= 10000 && (
-                      <button
-                        type="button"
-                        className="btn btn-success text-white fw-bold ms-3"
-                        onClick={() => activatePremiumHandler(expense)}
-                      >
-                        Activate Premium
-                      </button>
-                    )} */}
                   </td>
                 </tr>
               );
             })}
+            <tr>
+              <td>
+                <p className="fw-bold">
+                  {`Total expense = ${totalExpense}`}
+                  {totalExpense >= 10000 && !isPremium && (
+                    <button
+                      type="button"
+                      className="btn bg-success text-white fw-bold ms-3"
+                      onClick={() => activatePremiumHandler()}
+                    >
+                      Activate Premium
+                    </button>
+                  )}
+                  {isPremium && (
+                    <button
+                      className="btn bg-info bg-gradient text-white fw-bold ms-3"
+                      onClick={() => expenseReporHandler()}
+                    >
+                      Download expenses report
+                    </button>
+                  )}
+                </p>
+              </td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 };
 
