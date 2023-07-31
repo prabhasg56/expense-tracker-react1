@@ -25,7 +25,7 @@ function App() {
       document.getElementById('forgot-modal')
     )}
     <Routes>
-     <Route path='/' element={!isAuthentication &&  <SignUpForm/>}/>
+     <Route path='/' element={!isAuthentication ? <SignUpForm/> : <Navigate to = '/welcome'/>}/>
       <Route path='/signin' element={<SignInForm showModalHandler={showModalHandler}/>}/>
       <Route path='/welcome' element={isAuthentication ? <WelcomePage/> : <Navigate to = '/signin'/>}/>
       <Route path='/profile' element={isAuthentication ? <ProfilePage/> : <Navigate to = '/signin'/>}/>

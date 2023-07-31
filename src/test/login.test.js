@@ -1,14 +1,18 @@
-import {render, screen} from '@testing-library/react';
-import SignInForm from '../pases/SignInForm';
-import WelcomePage from '../pases/WelcomePage'
+import { render, screen } from "@testing-library/react";
+import ForgotModal from "../components/ForgotModal";
 
-describe('SignIn page testing..', ()=> {
-    test('Signin title ', () => {
-      render(<WelcomePage/>)
+describe("Forgot page testing..", () => {
+  render(<ForgotModal />);
+  test("Forgot title ", () => {
+    const forgotTitle = screen.findByText("Forgot password");
 
-      const signinText = screen.getByText('Welcome to expense tracker!!');
+    expect(forgotTitle).toBeTruthy();
+  });
 
-      expect(signinText).toBeInTheDocument();
-    })
-    
-})
+  test("Forgot label ", () => {
+    const forgotLabel = screen.findByText(
+      "Enter the email with which you have registered!"
+    );
+    expect(forgotLabel).toBeTruthy();
+  });
+});
